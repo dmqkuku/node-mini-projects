@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Vue Index</title>
+		<script src="https://unpkg.com/vue@next"></script>
+		<script src="./public/http-bundle.js"></script>
+		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	</head>
+	<body>
+		<div id="vue-chat">
+			<div v-if="isAuthorized" id="chat-room">
+				<button @click="disconnectWs()">Disconnect</button>
+				<button>Logout</button>
+				<h1>Welcome!</h1>
+				<div id="chatStatus">{{wsStatus}}</div>
+				<div id="chatBox" style="overflow:hidden;width:600px;height:600px;border:thin solid black">
+					
+						<chat-item v-for="chatlog in chatlogs" :id="chatlog.id" :msg="chatlog.msg" :key="chatlog.key"></chat-item>
+				
+				</div>
+				<p>
+				Enter Message : <input type="text" v-model="chatInput"><button @click="sendChat()">Chat</button>
+			</div>
+			<div v-else id="login-room">
+				<h3 v-show="isPermissionDenied">Your Login attempt is denied : {{serverMsg}}</h3>
+				<div>
+					<label for="id">ID : </label>
+					<input type="text" v-model="id"/>
+				</div>
+				<div>
+					<label for="password">Password : </label>
+					<input type="password" v-model="password"/>
+				</div>
+				<div>
+					<button @click="sendLoginReq()">Login!</button>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script src="./public/index-js.js"></script>
+</html>
