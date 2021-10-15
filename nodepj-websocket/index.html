@@ -5,21 +5,75 @@
 		<script src="https://unpkg.com/vue@next"></script>
 		<script src="./public/http-bundle.js"></script>
 		<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+		<style>
+			.isMine{
+				background-color: green;
+				color : beige
+			}
+			
+			.isNotMine{
+				background-color: #f8f6b4;
+				color : black;
+			}
+			.isMine {
+				position:relative;
+				padding-left : 5px;
+				margin: 12px;
+				width: 94%;
+				height:25px;
+				background:green;
+				border-radius: 2px;
+			}	
+			.isMine:after {
+				border-top:15px solid green;
+				border-left: 15px solid transparent;
+				border-right: 0px solid transparent;
+				border-bottom: 0px solid transparent;
+				content:"";
+				position:absolute;
+				top:0px;
+				left:-14px;
+			}
+			.isNotMine {
+				position:relative;
+				padding-left : 5px;
+				margin: 12px;
+				width: 94%;
+				height:25px;
+				background:#f8f6b4;
+				border-radius: 2px;
+			}	
+			.isNotMine:after {
+				border-top:15px solid #f8f6b4;
+				border-left: 0px solid transparent;
+				border-right: 15px solid transparent;
+				border-bottom: 0px solid transparent;
+				content:"";
+				position:absolute;
+				top:0px;
+				right:-14px;
+			}
+
+		</style>
 	</head>
 	<body>
 		<div id="vue-chat">
 			<div v-if="isAuthorized" id="chat-room">
 				<button @click="disconnectWs()">Disconnect</button>
-				<button>Logout</button>
+				<button @click="connectWs()">ReConnect</button>
 				<h1>Welcome!</h1>
+				<div id="chatMembers" style="border:thin dotted grey;width:600px;">
+					Curr Users : 
+					<span v-for="currUser in currUsers">{{currUser}} ,</span>
+					Curr User Count : {{currUserCount}}
+				</div>
 				<div id="chatStatus">{{wsStatus}}</div>
-				<div id="chatBox" style="overflow:hidden;width:600px;height:600px;border:thin solid black">
+				<div id="chatBox" style="overflow:auto;width:600px;height:600px;border:thin solid black">
 					
-						<chat-item v-for="chatlog in chatlogs" :id="chatlog.id" :msg="chatlog.msg" :key="chatlog.key"></chat-item>
+						<chat-item v-for="(chatlog, name, index) in chatlogs" :id="chatlog.id" :msg="chatlog.msg" :class="{isMine : chatlog.isMine, isNotMine: chatlog.isNotMine}" :key="index"></chat-item>
 				
 				</div>
-				<p>
-				Enter Message : <input type="text" v-model="chatInput"><button @click="sendChat()">Chat</button>
+				Enter Message : <input type="text" v-model="chatInput" @keydown.enter="sendChat()"><button @click="sendChat()">Chat</button>
 			</div>
 			<div v-else id="login-room">
 				<h3 v-show="isPermissionDenied">Your Login attempt is denied : {{serverMsg}}</h3>

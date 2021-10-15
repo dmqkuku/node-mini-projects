@@ -64,6 +64,7 @@ app.get("/", (req, res) => {
 app.post("/api/user/login", function(req, res){
     const {id, password} = req.body;
 
+    console.log(curr_users);
     //if valid user
     if(valid_user_map.has(id) && valid_user_map.get(id) == password && (!curr_users[id] || curr_users[id] == 0)){
         const uid = uuid.v4();
@@ -75,7 +76,9 @@ app.post("/api/user/login", function(req, res){
         //respond
         res.send({
             permission : "200",
-            msg : "Permission Granted"
+            msg : "Permission Granted",
+            "currUsers" : curr_users
+
         })
         console.log(`${id} is Permitted`)
         //if invalid user
@@ -135,6 +138,7 @@ websocket.on("connection", function(wws, request){
                         "msg" : message + ""
                         ,"key" : userIdentity
                         ,"id": id + ""
+                        , "currUsers" : curr_users
                     }))
                 }
             })

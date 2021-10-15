@@ -1,5 +1,6 @@
 const http = require("http");
 
+
 const Chat = {
 	data(){
 		return {
@@ -12,6 +13,8 @@ const Chat = {
 			, chatInput : ''
 			, wsStatus : ''
 			, statusMsg : ''
+			, currUsers : []
+			, currUserCount : 0
 		
 		}
 	},
@@ -27,11 +30,19 @@ const Chat = {
 			axios
 			    .post("/api/user/login", param)
 			    .then((response) => {
-			    	const {permission, msg} = response.data
+			    	const {permission, msg, currUsers} = response.data
 				if(permission === '200'){
 					that.isPermissionDenied = false
 					that.isAuthorized = true
 					that.connectWs();
+					//displaying curr Users
+					that.currUserCount = that.currUsers.length;
+					for(const key in currUsers){
+						if(!that.currUsers.includes(key)){
+							that.currUsers.push(key)
+							that.currUserCount += 1
+						}
+					}
 				}else{
 					that.serverMsg = msg;
 					that.isPermissionDenied = true
@@ -52,15 +63,26 @@ const Chat = {
 			}
 			that.socket.onmessage = function(event){
 				console.log(event.data);
-				const {id, msg, key} = JSON.parse(event.data);
+				const {id, msg, key, currUsers} = JSON.parse(event.data);
 				console.log(id, msg, key)
 				if(!id || !msg || !key){
 					alert("Invalid Data!")
 					that.disconnectWs()
 				}else{
+					const isMine = id === that.id;
+					const isNotMine = id !== that.id
 					that.chatlogs.push({
-						"id" : id, "msg" : msg, "key" : key
+						"id" : id, "msg" : msg, "key" : key, "isMine" : isMine, "isNotMine" : isNotMine
 					})
+					//displaying curr Users
+					that.currUserCount = that.currUsers.length;
+					for(const key in currUsers){
+						if(!that.currUsers.includes(key)){
+							that.currUsers.push(key)
+							that.currUserCount += 1;
+						}
+					}
+					that.autoScroll()
 				}
 			}
 			that.socket.onerror = function(event){
@@ -81,6 +103,12 @@ const Chat = {
 				that.socket.send(that.chatInput)
 				that.chatInput = "";
 			}
+		},
+		autoScroll(){
+			this.$nextTick(() => {
+				const chatLength = this.chatlogs.length;
+				this.$el.querySelector("#chatBox").scrollTo({behavior : "smooth", top : chatLength * 50})
+			})
 		}
 	}
 
@@ -89,7 +117,8 @@ const app = Vue.createApp(Chat)
 
 app.component("chat-item", {
 	props : ["id", "msg", "key" ]
-	,template : `<p>[{{id}}] : {{msg}}</p>`
+	,template : `<div><p>[{{id}}] : {{msg}}</p></div>`
 })
 
 app.mount("#vue-chat")
+

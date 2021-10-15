@@ -4,6 +4,6 @@ SYJ, sawon
 KJH, sawon
 PHJ, juim
 HSP, bujang
-KDK, chjang
+KDK, chajang
 SDK, gwajang
 LJH, bujang
